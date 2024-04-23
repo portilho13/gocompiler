@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+
+	"github.com/portilho13/gocompiler/lexer"
 )
 
 func openFile() (string, error) {
@@ -25,5 +27,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(content))
+	
+	lexer.Lexer(string(content))
 }
