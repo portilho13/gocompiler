@@ -66,9 +66,9 @@ func getc() (rune, error){
 func get_identifier() string {
 	content := file.content
 	start := file.current - 1
-	for {
+	for file.current < file.length{
 		c := rune(content[file.current])
-		if !('a' <= c && c <= 'z' || 'A' <= c && c <= 'Z') || c == ' ' || c == '\n' || c == '\t'{
+		if !('a' <= c && c <= 'z' || 'A' <= c && c <= 'Z') || (c == ' ' || c == '\n' || c == '\t'){
 			break
 		}
 		file.current++
@@ -82,11 +82,12 @@ func get_string() string {
 	for file.current < file.length {
 		c := rune(content[file.current])
 		if c == '"' {
+			file.current++
 			break
 		}
 		file.current++
 	}
-	return content[start:file.current]
+	return content[start:file.current - 1]
 
 }
 
@@ -147,9 +148,9 @@ func Lexer(content string) {
 				continue
 			case c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']':
 				tokenList = append(tokenList, CreateToken(DELIMITER, string(c)))
-			case c == '+' || c == '-' || c == '*' || c == '/' || c == '=':
+			case c == '+' || c == '-' || c == '*' || c == '/' || c == '=' || c == '<' || c == '>' || c == '&' || c == '|' || c == '!' || c == '^' || c == '%' || c == '~' || c == '?' || c == ':' || c == ',':
 				tokenList = append(tokenList, CreateToken(OPERATOR, string(c)))
-			case 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z':
+			case 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z' || c == '_':
 				identifier := get_identifier()
 				isKeyword, keyword := get_keyword(identifier)
 				if isKeyword {
@@ -171,6 +172,7 @@ func Lexer(content string) {
 				}
 				if directive == "include" {
 					tokenList = append(tokenList, CreateToken(HEADER, get_header()))
+					getc()
 				}
 			default:
 				fmt.Printf("Invalid character %c\n", c)
