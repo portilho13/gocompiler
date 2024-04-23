@@ -1,7 +1,12 @@
 package main
 
-import "github.com/portilho13/gocompiler/lexer"
+import (
+	"fmt"
+
+	"github.com/portilho13/gocompiler/lexer"
+)
 
 func main() {
-	lexer.Lexer()
+	l := lexer.CreateToken("INT", "42")
+	fmt.Println(l)
 }
