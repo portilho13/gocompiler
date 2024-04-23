@@ -10,9 +10,11 @@ const (
 	KEYWORD = "KEYWORD"
 	IDENTIFIER = "IDENTIFIER"
 	LITERAL = "LITERAL"
+	STRING = "STRING"
 	OPERATOR = "OPERATOR"
 	DELIMITER = "DELIMITER"
 	DIRECTIVE = "DIRECTIVE"
+	HEADER = "HEADER"
 )
 
 var tokenList []Token
@@ -64,9 +66,9 @@ func getc() (rune, error){
 func get_identifier() string {
 	content := file.content
 	start := file.current - 1
-	for file.current < file.length {
+	for {
 		c := rune(content[file.current])
-		if !('a' <= c && c <= 'z' || 'A' <= c && c <= 'Z') {
+		if !('a' <= c && c <= 'z' || 'A' <= c && c <= 'Z') || c == ' ' || c == '\n' || c == '\t'{
 			break
 		}
 		file.current++
@@ -105,11 +107,9 @@ func isNumeric(c rune) bool {
 
 func get_directive() (bool, string)	{
 	word := get_identifier()
-	fmt.Println("Word: ", word)
 	keyWords := []string{"include", "define", "ifdef", "ifndef", "endif", "undef", "line", "error", "pragma"}
 	for _, keyWord := range keyWords {
 		if word == keyWord {
-			fmt.Println("Directive: ", word)
 			return true, word
 		}
 	}
@@ -117,11 +117,23 @@ func get_directive() (bool, string)	{
 
 }
 
+func get_header() string {
+	content := file.content
+	start := file.current
+	for file.current < file.length {
+		c := rune(content[file.current])
+		if c == '>' {
+			break
+		}
+		file.current++
+	}
+	return content[start:file.current + 1]
+}
+
 
 func Lexer(content string) {
 	content = removeComments(content)
 	content = strings.TrimSpace(content)
-	fmt.Println(content)
 
 	file = File{length: len(content), content: content, current: 0}
 
@@ -146,7 +158,7 @@ func Lexer(content string) {
 					tokenList = append(tokenList, CreateToken(IDENTIFIER, identifier))
 				}
 			case c == '"':
-				tokenList = append(tokenList, CreateToken(LITERAL, get_string()))
+				tokenList = append(tokenList, CreateToken(STRING, get_string()))
 			case c == ';':
 				tokenList = append(tokenList, CreateToken(DELIMITER, string(c)))
 			case isNumeric(c):
@@ -154,9 +166,11 @@ func Lexer(content string) {
 			case c == '#':
 				getc()
 				isDirective, directive := get_directive()
-				fmt.Println("Directive: ", directive)
 				if isDirective {
 					tokenList = append(tokenList, CreateToken(DIRECTIVE, directive))
+				}
+				if directive == "include" {
+					tokenList = append(tokenList, CreateToken(HEADER, get_header()))
 				}
 			default:
 				fmt.Printf("Invalid character %c\n", c)
