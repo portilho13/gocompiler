@@ -50,13 +50,27 @@ func Display() {
 	}
 }
 
-func getc(content string) (rune, error){
+func getc() (rune, error){
+	content := file.content
 	if file.length < 0 {
 		return 0, errors.New("EOF")
 	}
+	c := rune(content[file.current])
 	file.current++
-	c := rune(content[file.current - 1])
 	return c, nil
+}
+
+func get_identifier() string {
+	content := file.content
+	start := file.current - 1
+	for file.current < file.length {
+		c := rune(content[file.current])
+		if !('a' <= c && c <= 'z' || 'A' <= c && c <= 'Z') {
+			break
+		}
+		file.current++
+	}
+	return content[start:file.current]
 }
 
 
@@ -68,10 +82,23 @@ func Lexer(content string) {
 
 	file = File{length: len(content), content: content, current: 0}
 
-	for i := 0; i < len(content); i++ {
-		c, err := getc(content)
-		switch content[i] {
-			case ' ':
+	for file.current < file.length {
+		c, err := getc()
+		if err != nil {
+			break
+		}
+		switch {
+			case c == ' ' || c == '\n' || c == '\t':
+				continue
+			case c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']':
+				tokenList = append(tokenList, CreateToken(DELIMITER, string(c)))
+			case c == '+' || c == '-' || c == '*' || c == '/' || c == '=':
+				tokenList = append(tokenList, CreateToken(OPERATOR, string(c)))
+			case 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z':
+				tokenList = append(tokenList, CreateToken(IDENTIFIER, get_identifier()))
+			default:
+				fmt.Println("Invalid character")
+		}
 	}
 
 
