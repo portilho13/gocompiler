@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	KEYWORD = iota
-	IDENTIFIER
-	LITERAL
-	OPERATOR
-	DELIMITER
+	KEYWORD = "KEYWORD"
+	IDENTIFIER = "IDENTIFIER"
+	LITERAL = "LITERAL"
+	OPERATOR = "OPERATOR"
+	DELIMITER = "DELIMITER"
 )
 
 var tokenList []Token
 var file File
 
 type Token struct {
-	Type   int
+	Type   string
 	Value  string
 }
 
@@ -40,13 +40,13 @@ func removeComments(content string) string {
 	return strings.Join(result, "\n")
 }
 
-func CreateToken(tokenType int, value string) Token {
-	return Token{KEYWORD, value}
+func CreateToken(tokenType string, value string) Token {
+	return Token{tokenType, value}
 }
 
 func Display() {
 	for _, token := range tokenList {
-		fmt.Printf("Type: %d, Value: %s\n", token.Type, token.Value)
+		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.Value)
 	}
 }
 
@@ -73,10 +73,27 @@ func get_identifier() string {
 	return content[start:file.current]
 }
 
+func get_string() string {
+	content := file.content
+	start := file.current
+	for file.current < file.length {
+		c := rune(content[file.current])
+		if c == '"' {
+			break
+		}
+		file.current++
+	}
+	return content[start:file.current]
+
+}
+
+func isNumeric(c rune) bool {
+	return '0' <= c && c <= '9'
+}
+
 
 func Lexer(content string) {
 	content = removeComments(content)
-	tokenList = append(tokenList, CreateToken(LITERAL, "1"))
 	content = strings.TrimSpace(content)
 	fmt.Println(content)
 
@@ -96,8 +113,14 @@ func Lexer(content string) {
 				tokenList = append(tokenList, CreateToken(OPERATOR, string(c)))
 			case 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z':
 				tokenList = append(tokenList, CreateToken(IDENTIFIER, get_identifier()))
+			case c == '"':
+				tokenList = append(tokenList, CreateToken(LITERAL, get_string()))
+			case c == ';':
+				tokenList = append(tokenList, CreateToken(DELIMITER, string(c)))
+			case isNumeric(c):
+				tokenList = append(tokenList, CreateToken(LITERAL, string(c)))
 			default:
-				fmt.Println("Invalid character")
+				fmt.Printf("Invalid character %c\n", c)
 		}
 	}
 
