@@ -12,6 +12,7 @@ const (
 	LITERAL = "LITERAL"
 	OPERATOR = "OPERATOR"
 	DELIMITER = "DELIMITER"
+	DIRECTIVE = "DIRECTIVE"
 )
 
 var tokenList []Token
@@ -102,6 +103,20 @@ func isNumeric(c rune) bool {
 	return '0' <= c && c <= '9'
 }
 
+func get_directive() (bool, string)	{
+	word := get_identifier()
+	fmt.Println("Word: ", word)
+	keyWords := []string{"include", "define", "ifdef", "ifndef", "endif", "undef", "line", "error", "pragma"}
+	for _, keyWord := range keyWords {
+		if word == keyWord {
+			fmt.Println("Directive: ", word)
+			return true, word
+		}
+	}
+	return false, ""
+
+}
+
 
 func Lexer(content string) {
 	content = removeComments(content)
@@ -136,6 +151,13 @@ func Lexer(content string) {
 				tokenList = append(tokenList, CreateToken(DELIMITER, string(c)))
 			case isNumeric(c):
 				tokenList = append(tokenList, CreateToken(LITERAL, string(c)))
+			case c == '#':
+				getc()
+				isDirective, directive := get_directive()
+				fmt.Println("Directive: ", directive)
+				if isDirective {
+					tokenList = append(tokenList, CreateToken(DIRECTIVE, directive))
+				}
 			default:
 				fmt.Printf("Invalid character %c\n", c)
 		}
