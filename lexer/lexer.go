@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -14,10 +15,17 @@ const (
 )
 
 var tokenList []Token
+var file File
 
 type Token struct {
 	Type   int
 	Value  string
+}
+
+type File struct {
+	length int
+	content string
+	current int
 }
 
 func removeComments(content string) string {
@@ -42,10 +50,29 @@ func Display() {
 	}
 }
 
+func getc(content string) (rune, error){
+	if file.length < 0 {
+		return 0, errors.New("EOF")
+	}
+	file.current++
+	c := rune(content[file.current - 1])
+	return c, nil
+}
+
+
 func Lexer(content string) {
 	content = removeComments(content)
 	tokenList = append(tokenList, CreateToken(LITERAL, "1"))
+	content = strings.TrimSpace(content)
 	fmt.Println(content)
+
+	file = File{length: len(content), content: content, current: 0}
+
+	for i := 0; i < len(content); i++ {
+		c, err := getc(content)
+		switch content[i] {
+			case ' ':
+	}
 
 
 }
