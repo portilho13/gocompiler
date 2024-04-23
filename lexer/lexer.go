@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+var tokenList []Token
+
 type Token struct {
 	Type    string
 	Value  string
@@ -26,8 +28,13 @@ func CreateToken(tokenType string, value string) Token {
 	return Token{tokenType, value}
 }
 
+func Display() {
+
+}
+
 func Lexer(content string) {
 	content = removeComments(content)
+	tokenList = append(tokenList, CreateToken("INT", "1"))
 	fmt.Println(content)
 
 
