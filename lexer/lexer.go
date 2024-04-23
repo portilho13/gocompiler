@@ -132,7 +132,7 @@ func get_header() string {
 }
 
 
-func Lexer(content string) {
+func Lexer(content string) ([]Token, error) {
 	content = removeComments(content)
 	content = strings.TrimSpace(content)
 
@@ -176,8 +176,10 @@ func Lexer(content string) {
 				}
 			default:
 				fmt.Printf("Invalid character %c\n", c)
+				return nil, errors.New("Invalid character")
 		}
 	}
 
+	return tokenList, nil
 
 }

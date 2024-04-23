@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/portilho13/gocompiler/lexer"
+	"github.com/portilho13/gocompiler/parser"
 )
 
 func openFile() (string, error) {
@@ -28,6 +29,12 @@ func main() {
 		panic(err)
 	}
 	
-	lexer.Lexer(string(content))
+	_, err = lexer.Lexer(string(content))
+	if err != nil {
+		panic(err)
+	}
 	lexer.Display()
+
+	parser.Parse()
+
 }
