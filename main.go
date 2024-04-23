@@ -29,4 +29,5 @@ func main() {
 	}
 	
 	lexer.Lexer(string(content))
+	lexer.Display()
 }

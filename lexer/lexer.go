@@ -5,10 +5,18 @@ import (
 	"strings"
 )
 
+const (
+	KEYWORD = iota
+	IDENTIFIER
+	LITERAL
+	OPERATOR
+	DELIMITER
+)
+
 var tokenList []Token
 
 type Token struct {
-	Type    string
+	Type   int
 	Value  string
 }
 
@@ -24,17 +32,19 @@ func removeComments(content string) string {
 	return strings.Join(result, "\n")
 }
 
-func CreateToken(tokenType string, value string) Token {
-	return Token{tokenType, value}
+func CreateToken(tokenType int, value string) Token {
+	return Token{KEYWORD, value}
 }
 
 func Display() {
-
+	for _, token := range tokenList {
+		fmt.Printf("Type: %d, Value: %s\n", token.Type, token.Value)
+	}
 }
 
 func Lexer(content string) {
 	content = removeComments(content)
-	tokenList = append(tokenList, CreateToken("INT", "1"))
+	tokenList = append(tokenList, CreateToken(LITERAL, "1"))
 	fmt.Println(content)
 
 
