@@ -87,6 +87,17 @@ func get_string() string {
 
 }
 
+func get_keyword(identifier string) (bool, string) {
+	keywords := []string{"if", "else", "for", "while", "do", "break", "continue", "int", "float", "char", "double", "short", "long", "unsigned", "signed", "void", "struct", "union", "enum", "typedef", "sizeof", "auto", "register", "static", "extern", "const", "volatile", "return", "switch", "case", "default", "goto", "asm", "inline", "restrict", "_Bool", "_Complex", "_Imaginary"}
+	for _, keyword := range keywords {
+		if keyword == identifier {
+			return true, keyword
+		}
+	}
+	return false, ""
+
+}
+
 func isNumeric(c rune) bool {
 	return '0' <= c && c <= '9'
 }
@@ -112,7 +123,13 @@ func Lexer(content string) {
 			case c == '+' || c == '-' || c == '*' || c == '/' || c == '=':
 				tokenList = append(tokenList, CreateToken(OPERATOR, string(c)))
 			case 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z':
-				tokenList = append(tokenList, CreateToken(IDENTIFIER, get_identifier()))
+				identifier := get_identifier()
+				isKeyword, keyword := get_keyword(identifier)
+				if isKeyword {
+					tokenList = append(tokenList, CreateToken(KEYWORD, keyword))
+				} else {
+					tokenList = append(tokenList, CreateToken(IDENTIFIER, identifier))
+				}
 			case c == '"':
 				tokenList = append(tokenList, CreateToken(LITERAL, get_string()))
 			case c == ';':
