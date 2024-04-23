@@ -34,7 +34,7 @@ func main() {
 		panic(err)
 	}
 	lexer.Display()
-
 	parser.Parse()
+	parser.Display()
 
 }
