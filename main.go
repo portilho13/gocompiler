@@ -33,7 +33,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	lexer.Display()
+	//lexer.Display()
 	parser.Parse()
 	parser.Display()
 

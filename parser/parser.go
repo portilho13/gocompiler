@@ -7,49 +7,64 @@ import (
 	"github.com/portilho13/gocompiler/lexer"
 )
 
-var pt *ParseTree
+const (
+	TYPE_PROGRAM = iota
+	TYPE_STATEMENT
+	TYPE_EXPRESSION
+	TYPE_TERM
+)
 
-type ParseTree struct {
+type nt struct {
 	data *lexer.Token
-	child *ParseTree
-	sibling *ParseTree
+	left_child *nt
+	right_child *nt
 }
 
-func CreateParseTree(data *lexer.Token) *ParseTree {
-	return &ParseTree{data, nil, nil}
+var pt *nt
+
+func createNodeTree(data *lexer.Token) *nt {
+	return &nt{data, nil, nil}
 }
 
 func PrintToken(token *lexer.Token) {
 	fmt.Printf("Type: %s, Value: %s\n", token.Type, token.Value)
 }
 
-func print_PT(pt *ParseTree, indent int) {
+func print_PT(pt *nt, indent int, isLast bool) {
 	if pt == nil {
 		return
 	}
 
-	// Depth-First print
+	// Print indentation
 	if indent > 0 {
 		space := strings.Repeat(" ", indent)
-		fmt.Printf("%s", space)
+		if isLast {
+			fmt.Printf("%s└─", space)
+		} else {
+			fmt.Printf("%s├─", space)
+		}
 	}
 
 	// Print token
 	PrintToken(pt.data)
 
-	sibling := pt.sibling
-	child := pt.child
-	// Traverse child and sibling nodes
-	print_PT(child, indent+2)
-	print_PT(sibling, indent)
+	// Traverse left child
+	print_PT(pt.left_child, indent+2, false)
 
+	// Traverse right sibling
+	if pt.right_child != nil {
+		print_PT(pt.right_child, indent, true)
+	}
 }
-
 
 func Display() {
-	print_PT(pt, 0)
+	print_PT(pt, 0, true)
 }
 
+
 func Parse() {
-	fmt.Println("Parse")
+	tokenList := lexer.GetTokens()
+	pt = createNodeTree(&tokenList[0])
+	pt.left_child = createNodeTree(&tokenList[1])
+
 }

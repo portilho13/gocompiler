@@ -31,6 +31,10 @@ type File struct {
 	current int
 }
 
+func GetTokens() []Token {
+	return tokenList
+}
+
 func removeComments(content string) string {
 	lines := strings.Split(content, "\n")
 	var result []string
