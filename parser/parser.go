@@ -15,6 +15,7 @@ const (
 )
 
 type nt struct {
+	Type interface{}
 	data *lexer.Token
 	left_child *nt
 	right_child *nt
@@ -22,8 +23,8 @@ type nt struct {
 
 var pt *nt
 
-func createNodeTree(data *lexer.Token) *nt {
-	return &nt{data, nil, nil}
+func createNodeTree(Type interface{}, data *lexer.Token) *nt {
+	return &nt{Type, data, nil, nil}
 }
 
 func PrintToken(token *lexer.Token) {
@@ -64,7 +65,9 @@ func Display() {
 
 func Parse() {
 	tokenList := lexer.GetTokens()
-	pt = createNodeTree(&tokenList[0])
-	pt.left_child = createNodeTree(&tokenList[1])
+	if len(tokenList) == 0 {
+		panic("No tokens to parse")
+	}
+	root := createNodeTree(TYPE_PROGRAM, nil)
 
 }
