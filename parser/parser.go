@@ -8,27 +8,27 @@ import (
 )
 
 const (
-	TYPE_PROGRAM = iota
-	TYPE_STATEMENT
-	TYPE_EXPRESSION
-	TYPE_TERM
+	TYPE_PROGRAM = "PROGRAM"
+	TYPE_STATEMENT = "STATEMENT"
+	TYPE_EXPRESSION = "EXPRESSION"
+	TYPE_TERM = "TERM"
 )
 
 type nt struct {
-	Type interface{}
+	Type string
 	data *lexer.Token
-	left_child *nt
-	right_child *nt
+	children []*nt
 }
 
 var pt *nt
 
-func createNodeTree(Type interface{}, data *lexer.Token) *nt {
-	return &nt{Type, data, nil, nil}
+func createNodeTree(Type string, data *lexer.Token) *nt {
+	return &nt{Type, data, make([]*nt, 0)}
+
 }
 
-func PrintToken(token *lexer.Token) {
-	fmt.Printf("Type: %s, Value: %s\n", token.Type, token.Value)
+func PrintToken(token *nt) {
+	fmt.Printf("Type: %s, Value: %s\n", token.Type, token.data.Value)
 }
 
 func print_PT(pt *nt, indent int, isLast bool) {
@@ -47,18 +47,15 @@ func print_PT(pt *nt, indent int, isLast bool) {
 	}
 
 	// Print token
-	PrintToken(pt.data)
+	PrintToken(pt)
 
-	// Traverse left child
-	print_PT(pt.left_child, indent+2, false)
-
-	// Traverse right sibling
-	if pt.right_child != nil {
-		print_PT(pt.right_child, indent, true)
+	// Traverse child nodes
+	for i, child := range pt.children {
+		print_PT(child, indent+2, i == len(pt.children)-1)
 	}
 }
 
-func Display() {
+func Display(pt *nt) {
 	print_PT(pt, 0, true)
 }
 
@@ -68,6 +65,7 @@ func Parse() {
 	if len(tokenList) == 0 {
 		panic("No tokens to parse")
 	}
-	root := createNodeTree(TYPE_PROGRAM, nil)
+	root := createNodeTree(TYPE_PROGRAM, &tokenList[0])
+	Display(root)
 
 }

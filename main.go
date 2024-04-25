@@ -35,6 +35,5 @@ func main() {
 	}
 	//lexer.Display()
 	parser.Parse()
-	parser.Display()
 
 }
