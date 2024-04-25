@@ -57,6 +57,14 @@ func Display() {
 	}
 }
 
+func Peek(i int) *Token {
+    if i < 0 || i >= len(tokenList)-1 {
+        return nil
+    }
+    return &tokenList[i]
+}
+
+
 func getc() (rune, error){
 	content := file.content
 	if file.length < 0 {
@@ -180,7 +188,7 @@ func Lexer(content string) ([]Token, error) {
 				}
 			default:
 				fmt.Printf("Invalid character %c\n", c)
-				return nil, errors.New("Invalid character")
+				return nil, errors.New("invalid character")
 		}
 	}
 
