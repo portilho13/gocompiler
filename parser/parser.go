@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -16,10 +15,36 @@ const (
 	TYPE_TERM = "TERM"
 )
 
+var stack Stack
+
 type nt struct {
 	Type string
 	data *lexer.Token
 	children []*nt
+}
+
+type Stack struct {
+	items []*lexer.Token
+}
+
+func (s *Stack) Push(item *lexer.Token) {
+	s.items = append(s.items, item)
+}
+
+func (s *Stack) Pop() *lexer.Token {
+	if len(s.items) == 0 {
+		return nil
+	}
+	item := s.items[len(s.items)-1]
+	s.items = s.items[:len(s.items)-1]
+	return item
+}
+
+func (s *Stack) Peek() *lexer.Token {
+	if len(s.items) == 0 {
+		return nil
+	}
+	return s.items[len(s.items)-1]
 }
 
 
@@ -68,6 +93,15 @@ func Display(pt *nt) {
 	print_PT(pt, 0, true)
 }
 
+func isHeader(token *lexer.Token, i int) (bool, *lexer.Token) {
+	if token.Type == lexer.DIRECTIVE {
+		if lexer.Peek(i + 1).Type == lexer.HEADER {
+			return true, lexer.Peek(i + 1)
+		}
+	}
+	return false, nil
+}
+
 func Parse() error {
     tokenList := lexer.GetTokens()
     if len(tokenList) == 0 {
@@ -76,22 +110,8 @@ func Parse() error {
     root := createNodeTree(TYPE_PROGRAM, nil)
 
     fmt.Println("----------------- PARSER -----------------")
-	for i, token := range tokenList {
-		if token.Type == lexer.DIRECTIVE {
-			c := lexer.Peek(i + 1) // Use i+1 to peek at the next token
-			if c != nil && c.Type == lexer.HEADER {
-				root.AddChild(createNodeTree(TYPE_INCLUDE_DIRECTIVE, c))
-			} else {
-				return errors.New("missing word #include")
-			}
-		} else if token.Type == lexer.HEADER {
-			if lexer.Peek(i - 1).Type != lexer.DIRECTIVE {
-				return errors.New("missing word #include")
-			}
-		} else {
-			fmt.Printf("Token not chosen: %s, Value: %s", token.Type, token.Value)
-			fmt.Println()
-		}
+	for _, token := range tokenList {
+		stack.Push(&token)
 	}
 	
 
