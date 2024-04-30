@@ -57,11 +57,11 @@ func Display() {
 	}
 }
 
-func Peek(i int) *Token {
-    if i < 0 || i >= len(tokenList)-1 {
-        return nil
-    }
-    return &tokenList[i]
+func Peek() *Token {
+	if len(tokenList) == 0 {
+		return nil
+	}
+	return &tokenList[0]
 }
 
 
