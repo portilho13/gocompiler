@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/portilho13/gocompiler/lexer"
 )
 
@@ -12,7 +14,7 @@ const (
 	TYPE_TERM = "TERM"
 )
 
-var stack Stack
+var parser *Parser
 
 type Parser struct {
 	tokens []lexer.Token
@@ -25,13 +27,10 @@ type nt struct {
 	children []*nt	
 }
 
-type BinExpr struct {
-	leftOp string
-	Op string
-	rightOp string
-}
 
 func Parse() error {
+	parser = &Parser{lexer.GetTokens(), 0}
+	fmt.Println(parser.tokens)
 
     return nil
 }
