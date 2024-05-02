@@ -10,11 +10,13 @@ func Display(pt *nt) {
 }
 
 func PrintToken(token *nt) {
-	if token.data == nil {
+	if token.funcDeclaration != nil {
+		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.funcDeclaration)
+	} else if token.varDeclaration != nil {
+		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.varDeclaration)
+	} else {
 		fmt.Printf("Type: %s\n", token.Type)
-		return
 	}
-	fmt.Printf("Type: %s, Value: %s\n", token.Type, token.data.Value)
 }
 
 func print_PT(pt *nt, indent int, isLast bool) {

@@ -13,13 +13,22 @@ const (
 	TYPE_STATEMENT = "STATEMENT"
 	TYPE_EXPRESSION = "EXPRESSION"
 	TYPE_TERM = "TERM"
+	TYPE_FUNC_DECLARATION = "FUNC_DECLARATION"
+	TYPE_VA = "VAR_DECLARATION"
 )
 
 var parser *Parser
+var root *nt
 
 type Parser struct {
 	tokens []lexer.Token
 	index int
+}
+
+type VarDeclaration struct {
+	VarName string
+	VarType string
+	Value string
 }
 
 type FuncDeclaration struct {
@@ -29,8 +38,10 @@ type FuncDeclaration struct {
 
 type nt struct {
 	Type string
-	data *lexer.Token
+	funcDeclaration *FuncDeclaration
+	varDeclaration *VarDeclaration
 	children []*nt	
+
 }
 
 func get_t() (lexer.Token, error) {
@@ -43,12 +54,26 @@ func get_t() (lexer.Token, error) {
 }
 
 func unget_t() (lexer.Token, error) {
-	if len(parser.tokens) > parser.index {
+	if parser.index == 0 {
 		return lexer.Token{}, errors.New("no more tokens")
 	}
-	temp := parser.tokens[parser.index]
 	parser.index--
+	temp := parser.tokens[parser.index]
 	return temp, nil
+}
+
+func get_var_type()	string {
+	temp := parser.index
+	t := lexer.Token{}
+	var err error
+	for i := 0; i < 3; i++ {
+		t, err = unget_t()
+		if err != nil {
+			return ""
+		}
+	}
+	parser.index = temp
+	return t.Value
 }
 
 func get_args() ([]string, error) {
@@ -68,39 +93,45 @@ func get_args() ([]string, error) {
 }
 
 
-func Parse() error {
+func Parse() (*nt, error) {
+	root = &nt{TYPE_PROGRAM, nil, nil, nil}
 	parser = &Parser{lexer.GetTokens(), 0}
 	for len(parser.tokens) > parser.index {
 		t, err := get_t()
 		if err != nil {
-			return err
+			return nil, err
 		}
 		var res []string
 		switch {
 			case t.Type == lexer.KEYWORD:
 				t, err = get_t()
 				if err != nil {
-					return err
+					return nil, err
 				}
 				res = append(res, t.Value)
 				if t.Type == lexer.IDENTIFIER || t.Type == lexer.LITERAL {
 					t, err = get_t()
 					if err != nil {
-						return err
+						return nil, err
 					}
 					if (t.Type == lexer.DELIMITER && t.Value == "(") {
 						args, err := get_args()
 						if err != nil {
-							return err
+							return nil, err
 						}
-						fmt.Println("Funcao: ", res[0])
-						fmt.Println(args)
+						fd := FuncDeclaration{res[0], args}
+						root.children = append(root.children, &nt{TYPE_FUNC_DECLARATION, &fd, nil, nil})
+						
+					} else if t.Type == lexer.DELIMITER && t.Value == ";" {
+						tp := get_var_type()
+						fmt.Printf("Var type: %s\n", tp)
+						vd := VarDeclaration{res[0], tp, ""}
+						root.children[0].children = append(root.children[0].children, &nt{TYPE_VA, nil, &vd, nil})
 					}
 				}
 
 		}
 	}
-	fmt.Println(parser.tokens)
 
-    return nil
+    return root, nil
 }

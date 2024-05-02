@@ -1,6 +1,6 @@
 //go:build ignore
 int main() {
-    1 + 5;
+    int x;
     return 0;
 }
 

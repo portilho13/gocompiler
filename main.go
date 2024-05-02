@@ -9,11 +9,11 @@ import (
 	"github.com/portilho13/gocompiler/parser"
 )
 
+
 func openFile() (string, error) {
 	if len(os.Args) != 2 {
 		return "", errors.New("usage: go run main.go <file>")
 	}
-
 	return os.Args[1], nil
 
 }
@@ -28,16 +28,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	_, err = lexer.Lexer(string(content))
 	if err != nil {
 		panic(err)
 	}
 	lexer.Display()
-	err = parser.Parse()
+	root, err := parser.Parse()
 	if err != nil {
 		panic(err)
 	}
+	parser.Display(root)
 
 
 }
