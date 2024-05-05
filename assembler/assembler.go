@@ -1,11 +1,13 @@
 package assembler
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/portilho13/gocompiler/parser"
 )
 
+var file *os.File
 
 func CreateFile() (*os.File, error) {
 	file, err := os.Create("output.asm")
@@ -20,9 +22,11 @@ func Assemble(root *parser.Nt) error {
 	if err != nil {
 		return err
 	}
+	os.WriteFile("output.asm", []byte("section .text\n"), 0644)
 	for _, child := range root.Children {
-		
-		Assemble(child)
+		if child.Type == parser.TYPE_FUNC_DECLARATION {
+			fmt.Println("Function declaration")
+		}
 	}
 	return nil
 }
