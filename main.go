@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/portilho13/gocompiler/assembler"
 	"github.com/portilho13/gocompiler/lexer"
 	"github.com/portilho13/gocompiler/parser"
 )
@@ -39,6 +40,8 @@ func main() {
 		panic(err)
 	}
 	parser.Display(root)
+
+	err = assembler.Assemble(root)
 
 
 }

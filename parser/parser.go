@@ -18,7 +18,7 @@ const (
 )
 
 var parser *Parser
-var root *nt
+var root *Nt
 
 type Parser struct {
 	tokens []lexer.Token
@@ -36,11 +36,11 @@ type FuncDeclaration struct {
 	Params []string
 }
 
-type nt struct {
+type Nt struct {
 	Type string
-	funcDeclaration *FuncDeclaration
-	varDeclaration *VarDeclaration
-	children []*nt	
+	FuncDeclaration *FuncDeclaration
+	VarDeclaration *VarDeclaration
+	Children []*Nt	
 
 }
 
@@ -93,8 +93,8 @@ func get_args() ([]string, error) {
 }
 
 
-func Parse() (*nt, error) {
-	root = &nt{TYPE_PROGRAM, nil, nil, nil}
+func Parse() (*Nt, error) {
+	root = &Nt{TYPE_PROGRAM, nil, nil, nil}
 	parser = &Parser{lexer.GetTokens(), 0}
 	for len(parser.tokens) > parser.index {
 		t, err := get_t()
@@ -120,13 +120,13 @@ func Parse() (*nt, error) {
 							return nil, err
 						}
 						fd := FuncDeclaration{res[0], args}
-						root.children = append(root.children, &nt{TYPE_FUNC_DECLARATION, &fd, nil, nil})
+						root.Children = append(root.Children, &Nt{TYPE_FUNC_DECLARATION, &fd, nil, nil})
 						
 					} else if t.Type == lexer.DELIMITER && t.Value == ";" {
 						tp := get_var_type()
 						fmt.Printf("Var type: %s\n", tp)
 						vd := VarDeclaration{res[0], tp, ""}
-						root.children[0].children = append(root.children[0].children, &nt{TYPE_VA, nil, &vd, nil})
+						root.Children[0].Children = append(root.Children[0].Children, &Nt{TYPE_VA, nil, &vd, nil})
 					}
 				}
 

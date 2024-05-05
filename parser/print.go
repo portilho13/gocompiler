@@ -5,21 +5,21 @@ import (
 	"strings"
 )
 
-func Display(pt *nt) {
+func Display(pt *Nt) {
 	print_PT(pt, 0, true)
 }
 
-func PrintToken(token *nt) {
-	if token.funcDeclaration != nil {
-		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.funcDeclaration)
-	} else if token.varDeclaration != nil {
-		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.varDeclaration)
+func PrintToken(token *Nt) {
+	if token.FuncDeclaration != nil {
+		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.FuncDeclaration)
+	} else if token.VarDeclaration != nil {
+		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.VarDeclaration)
 	} else {
 		fmt.Printf("Type: %s\n", token.Type)
 	}
 }
 
-func print_PT(pt *nt, indent int, isLast bool) {
+func print_PT(pt *Nt, indent int, isLast bool) {
 	if pt == nil {
 		return
 	}
@@ -38,7 +38,7 @@ func print_PT(pt *nt, indent int, isLast bool) {
 	PrintToken(pt)
 
 	// Traverse child nodes
-	for i, child := range pt.children {
-		print_PT(child, indent+2, i == len(pt.children)-1)
+	for i, child := range pt.Children {
+		print_PT(child, indent+2, i == len(pt.Children)-1)
 	}
 }
