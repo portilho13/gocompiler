@@ -12,7 +12,7 @@ type Assembler struct {
 	funcs []*parser.Nt
 }
 
-func checkFileExists() bool {
+func CheckFileExists() bool {
 	if _, err := os.Stat("output.asm"); os.IsNotExist(err) {
 		return false
 	}
@@ -46,7 +46,7 @@ func AssembleFuncDeclaration(file *os.File, funcDecl *parser.Nt) error {
 
 func Assemble(root *parser.Nt) error {
 	assemble := Assembler{}
-	if checkFileExists() {
+	if CheckFileExists() {
 		err := DeleteFile()
 		if err != nil {
 			return err
@@ -65,6 +65,43 @@ func Assemble(root *parser.Nt) error {
 			assemble.funcs = append(assemble.funcs, child)
 		}
 	}
+	err = WriteToFile(&assemble, file)
+	if err != nil {
+		return err
+	}
 
+	return nil
+}
+
+func WriteToFile(assemble *Assembler, file *os.File) error {
+	_, err := file.WriteString("section .text\n")
+	if err != nil {
+		return err
+	}
+	for _, funcName := range assemble.start {
+		_, err = file.WriteString(fmt.Sprintf("\tglobal %s\n", funcName))
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, funcDecl := range assemble.funcs {
+		_, err := file.WriteString(fmt.Sprintf("\n%s:\n", funcDecl.FuncDeclaration.FuncName))
+		if err != nil {
+			return err
+		}
+		for _, child := range funcDecl.Children {
+			if child.Type == parser.TYPE_VA {
+				_, err = file.WriteString("\tpush ebp\n\tmov ebp, esp\n")
+				if err != nil {
+					return err
+				}
+			}
+		}
+		_, err = file.WriteString("\tret\n")
+		if err != nil {
+			return err
+		}	
+	}
 	return nil
 }

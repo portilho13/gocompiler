@@ -125,8 +125,10 @@ func Parse() (*Nt, error) {
 					} else if t.Type == lexer.DELIMITER && t.Value == ";" {
 						tp := get_var_type()
 						fmt.Printf("Var type: %s\n", tp)
-						vd := VarDeclaration{res[0], tp, ""}
-						root.Children[0].Children = append(root.Children[0].Children, &Nt{TYPE_VA, nil, &vd, nil})
+						if tp != "return" {
+							vd := VarDeclaration{res[0], tp, ""}
+							root.Children[0].Children = append(root.Children[0].Children, &Nt{TYPE_VA, nil, &vd, nil})
+						}
 					}
 				}
 
