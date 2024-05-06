@@ -86,6 +86,7 @@ func WriteToFile(assemble *Assembler, file *os.File) error {
 	}
 
 	for _, funcDecl := range assemble.funcs {
+		currentValNum := 4
 		var needLeave bool
 		_, err := file.WriteString(fmt.Sprintf("\n%s:\n", funcDecl.FuncDeclaration.FuncName))
 		if err != nil {
@@ -103,7 +104,7 @@ func WriteToFile(assemble *Assembler, file *os.File) error {
 					return err
 				}
 				if child.VarDeclaration.Value != "" {
-					_, err = file.WriteString(fmt.Sprintf("\tmov dword [ebp - %s], %s\n", child.VarDeclaration.Value, child.VarDeclaration.Value))
+					_, err = file.WriteString(fmt.Sprintf("\tmov dword [ebp - %d], %s\n", currentValNum, child.VarDeclaration.Value))
 					if err != nil {
 						return err
 					}
@@ -114,6 +115,7 @@ func WriteToFile(assemble *Assembler, file *os.File) error {
 					return err
 				}
 			}
+			currentValNum += 4
 		}
 		if needLeave {
 			_, err = file.WriteString("\tleave\n")
