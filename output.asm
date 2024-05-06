@@ -1,4 +1,0 @@
-section .text
-main:
-	rei:
-	
