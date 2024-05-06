@@ -1,11 +1,10 @@
 section .text
 	global main
-	global rei
 
 main:
 	push ebp
 	mov ebp, esp
-	ret
-
-rei:
+	mov dword [ebp - 4], 4
+	mov eax, 0
+	leave
 	ret

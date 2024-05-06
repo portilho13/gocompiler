@@ -1,9 +1,5 @@
 //go:build ignore
 int main() {
-    int x;
-    return 0;
-}
-
-int rei() {
+    int x = 4;
     return 0;
 }

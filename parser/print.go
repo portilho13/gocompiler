@@ -14,6 +14,8 @@ func PrintToken(token *Nt) {
 		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.FuncDeclaration)
 	} else if token.VarDeclaration != nil {
 		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.VarDeclaration)
+	} else if token.Return != nil {
+		fmt.Printf("Type: %s, Value: %s\n", token.Type, token.Return)
 	} else {
 		fmt.Printf("Type: %s\n", token.Type)
 	}

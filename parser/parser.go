@@ -15,6 +15,7 @@ const (
 	TYPE_TERM = "TERM"
 	TYPE_FUNC_DECLARATION = "FUNC_DECLARATION"
 	TYPE_VA = "VAR_DECLARATION"
+	TYPE_RETURN = "RETURN"
 )
 
 var parser *Parser
@@ -23,6 +24,10 @@ var root *Nt
 type Parser struct {
 	tokens []lexer.Token
 	index int
+}
+
+type Return struct {
+	Value string
 }
 
 type VarDeclaration struct {
@@ -40,6 +45,7 @@ type Nt struct {
 	Type string
 	FuncDeclaration *FuncDeclaration
 	VarDeclaration *VarDeclaration
+	Return *Return
 	Children []*Nt	
 
 }
@@ -94,7 +100,7 @@ func get_args() ([]string, error) {
 
 
 func Parse() (*Nt, error) {
-	root = &Nt{TYPE_PROGRAM, nil, nil, nil}
+	root = &Nt{TYPE_PROGRAM, nil, nil, nil, nil}
 	parser = &Parser{lexer.GetTokens(), 0}
 	for len(parser.tokens) > parser.index {
 		t, err := get_t()
@@ -120,16 +126,45 @@ func Parse() (*Nt, error) {
 							return nil, err
 						}
 						fd := FuncDeclaration{res[0], args}
-						root.Children = append(root.Children, &Nt{TYPE_FUNC_DECLARATION, &fd, nil, nil})
+						root.Children = append(root.Children, &Nt{TYPE_FUNC_DECLARATION, &fd, nil, nil, nil})
 						
 					} else if t.Type == lexer.DELIMITER && t.Value == ";" {
 						tp := get_var_type()
 						fmt.Printf("Var type: %s\n", tp)
 						if tp != "return" {
 							vd := VarDeclaration{res[0], tp, ""}
-							root.Children[0].Children = append(root.Children[0].Children, &Nt{TYPE_VA, nil, &vd, nil})
+							root.Children[0].Children = append(root.Children[0].Children, &Nt{TYPE_VA, nil, &vd, nil, nil})
+						} else {
+							t, err = unget_t()
+							if err != nil {
+								return nil, err
+							}
+							t, err = unget_t()
+							if err != nil {
+								return nil, err
+							}
+							r := Return{t.Value}
+							t, err = get_t()
+							if err != nil {
+								return nil, err
+							}
+							root.Children[0].Children = append(root.Children[0].Children, &Nt{TYPE_RETURN, nil, nil, &r, nil})
+						}
+					} else if t.Type == lexer.OPERATOR && t.Value == "=" {
+						tp := get_var_type()
+						fmt.Printf("Var type: %s\n", tp)
+						t, err = get_t()
+						if err != nil {
+							return nil, err
+						}
+						vd := VarDeclaration{res[0], tp, t.Value}
+						root.Children[0].Children = append(root.Children[0].Children, &Nt{TYPE_VA, nil, &vd, nil, nil})
+						t, err = unget_t()
+						if err != nil {
+							return nil, err
 						}
 					}
+						
 				}
 
 		}

@@ -86,9 +86,15 @@ func WriteToFile(assemble *Assembler, file *os.File) error {
 	}
 
 	for _, funcDecl := range assemble.funcs {
+		var needLeave bool
 		_, err := file.WriteString(fmt.Sprintf("\n%s:\n", funcDecl.FuncDeclaration.FuncName))
 		if err != nil {
 			return err
+		}
+		if len(funcDecl.Children) == 0 {
+			needLeave = false
+		} else {
+			needLeave = true
 		}
 		for _, child := range funcDecl.Children {
 			if child.Type == parser.TYPE_VA {
@@ -96,6 +102,23 @@ func WriteToFile(assemble *Assembler, file *os.File) error {
 				if err != nil {
 					return err
 				}
+				if child.VarDeclaration.Value != "" {
+					_, err = file.WriteString(fmt.Sprintf("\tmov dword [ebp - %s], %s\n", child.VarDeclaration.Value, child.VarDeclaration.Value))
+					if err != nil {
+						return err
+					}
+				}
+			} else if child.Type == parser.TYPE_RETURN {
+				_, err = file.WriteString(fmt.Sprintf("\tmov eax, %s\n", child.Return.Value))
+				if err != nil {
+					return err
+				}
+			}
+		}
+		if needLeave {
+			_, err = file.WriteString("\tleave\n")
+			if err != nil {
+				return err
 			}
 		}
 		_, err = file.WriteString("\tret\n")
