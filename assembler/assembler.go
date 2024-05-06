@@ -7,8 +7,6 @@ import (
 	"github.com/portilho13/gocompiler/parser"
 )
 
-var file *os.File
-
 func CreateFile() (*os.File, error) {
 	file, err := os.Create("output.asm")
 	if err != nil {
@@ -17,16 +15,35 @@ func CreateFile() (*os.File, error) {
 	return file, nil
 }
 
-func Assemble(root *parser.Nt) error {
-	_, err := CreateFile()
+func AssembleFuncDeclaration(file *os.File, funcDecl *parser.Nt) error {
+	_, err := file.WriteString(fmt.Sprintf("%s:\n\t", funcDecl.FuncDeclaration.FuncName))
 	if err != nil {
 		return err
 	}
-	os.WriteFile("output.asm", []byte("section .text\n"), 0644)
+	// Add logic to handle parameters, local variables, and function body
+	return nil
+}
+
+func Assemble(root *parser.Nt) error {
+	file, err := CreateFile()
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.WriteString("section .text\n")
+	if err != nil {
+		return err
+	}
+
 	for _, child := range root.Children {
 		if child.Type == parser.TYPE_FUNC_DECLARATION {
-			fmt.Println("Function declaration")
+			err = AssembleFuncDeclaration(file, child)
+			if err != nil {
+				return err
+			}
 		}
 	}
+
 	return nil
 }

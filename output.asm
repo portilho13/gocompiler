@@ -1,1 +1,4 @@
 section .text
+main:
+	rei:
+	
