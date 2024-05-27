@@ -2,5 +2,5 @@
 
 ## Features:
 
-### Main function declaration
-### Basic local variable declaration
+- Main function declaration
+- Basic local variable declaration
